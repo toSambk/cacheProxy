@@ -1,11 +1,12 @@
 package cacheProxy.service;
 
+import cacheProxy.annotations.CacheStore;
 import cacheProxy.annotations.CacheableElement;
 
 public class ServiceImpl implements Service {
 
     @Override
-    @CacheableElement
+    @CacheableElement(store = CacheStore.DISK)
     public boolean doHardWork(int a, int b) {
         return a > b;
     }

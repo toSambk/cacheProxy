@@ -5,14 +5,15 @@ import cacheProxy.service.Service;
 import cacheProxy.service.ServiceImpl;
 import cacheProxy.service.ServiceImplCommon;
 
-import java.nio.file.Paths;
+import java.io.File;
 
 public class Demo {
 
     public static void main(String[] args) {
 
         String rootFolderPath = "C:\\Users\\Sam\\Desktop\\CacheSerialized";
-        CacheProxy cacheProxy = new CacheProxy(Paths.get(rootFolderPath));
+
+        CacheProxy cacheProxy = new CacheProxy(new File(rootFolderPath));
 
         Service service = new ServiceImpl();
 
@@ -20,7 +21,7 @@ public class Demo {
         proxyService.doHardWork(2, 1);
         proxyService.doHardWork(1, 0);
         proxyService.doHardWork(2, 1);
-        proxyService.minNumber(1,10);
+        proxyService.minNumber(1, 10);
 
         Service anotherService = new ServiceImplCommon();
         Service proxyServiceAnother = (Service) cacheProxy.cache(anotherService);

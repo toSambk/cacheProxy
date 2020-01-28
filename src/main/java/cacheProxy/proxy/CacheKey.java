@@ -1,24 +1,27 @@
 package cacheProxy.proxy;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class CacheKey {
+public class CacheKey implements Serializable {
+
+    private final static long serialVersionUID = 100L;
 
     private String keyForMethod;
 
     private Object[] args;
 
-    public CacheKey(String keyForMethod, Object[] args) {
+    CacheKey(String keyForMethod, Object[] args) {
         this.keyForMethod = keyForMethod;
         this.args = args;
     }
 
-    public String getKeyForMethod() {
+    String getKeyForMethod() {
         return keyForMethod;
     }
 
-    public Object[] getArgs() {
+    private Object[] getArgs() {
         return args;
     }
 
@@ -36,5 +39,13 @@ public class CacheKey {
         int result = Objects.hash(getKeyForMethod());
         result = 31 * result + Arrays.hashCode(getArgs());
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "keyForMethod='" + keyForMethod + '\'' +
+                ", args=" + Arrays.toString(args) +
+                '}';
     }
 }

@@ -1,22 +1,23 @@
 package cacheProxy.service;
 
+import cacheProxy.annotations.CacheStore;
 import cacheProxy.annotations.CacheableElement;
 
-@CacheableElement
+@CacheableElement(store = CacheStore.DISK)
 public class ServiceImplCommon implements Service {
 
     @Override
     public boolean doHardWork(int a, int b) {
-        return true;
+        return a < b;
     }
 
     @Override
     public int maxNumber(int a, int b) {
-        return 5;
+        return Math.max(a,b);
     }
 
     @Override
     public int minNumber(int a, int b) {
-        return 0;
+        return Math.min(a,b);
     }
 }

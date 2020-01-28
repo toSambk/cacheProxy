@@ -4,8 +4,8 @@ import cacheProxy.annotations.CacheableElement;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+import java.io.*;
 import java.lang.reflect.Method;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,9 +13,9 @@ public class Interceptor implements MethodInterceptor {
 
     final private Map<CacheKey, Object> cacheMap = new HashMap<>();
 
-    final private Path rootFolder;
+    final private File rootFolder;
 
-    Interceptor(final Path rootFolder) {
+    Interceptor(final File rootFolder) {
         this.rootFolder = rootFolder;
     }
 
@@ -28,14 +28,14 @@ public class Interceptor implements MethodInterceptor {
         }
 
         CacheableElement cacheableElement;
-        if(methodIsAnnotated) {
-            cacheableElement  = method.getAnnotation(CacheableElement.class);
+        if (methodIsAnnotated) {
+            cacheableElement = method.getAnnotation(CacheableElement.class);
         } else {
             cacheableElement = method.getDeclaringClass().getAnnotation(CacheableElement.class);
         }
 
         String keyName = cacheableElement.keyName().equals("DEFAULT") ?
-                    method.getDeclaringClass().getCanonicalName() + "." + method.getName() : cacheableElement.keyName();
+                method.getDeclaringClass().getCanonicalName() + "." + method.getName() : cacheableElement.keyName();
 
         CacheKey currentKey = new CacheKey(keyName, args);
         Object result;
@@ -59,10 +59,10 @@ public class Interceptor implements MethodInterceptor {
         System.out.println("Поиск кэша в JVM...");
         Object result;
         if (cacheMap.containsKey(currentKey)) {
-            System.out.println("Результат найден в кэше");
             result = cacheMap.get(currentKey);
+            System.out.println("Объект " + currentKey.getKeyForMethod() + " загружен из кэша");
         } else {
-            System.out.println("Результат не найден в кэше. Добавляем...");
+            System.out.println("Объект " + currentKey.getKeyForMethod() + " не найден в кэше. Добавляем...");
             result = proxy.invokeSuper(obj, args);
             cacheMap.put(currentKey, result);
             System.out.println("Добавлено - " + currentKey.getKeyForMethod() + " с результатом " + result);
@@ -71,15 +71,55 @@ public class Interceptor implements MethodInterceptor {
     }
 
     private Object cacheDisk(CacheKey currentKey, Object obj, Object[] args, MethodProxy proxy) throws Throwable {
+        System.out.println("Поиск кэша на диске...");
+        File[] files = rootFolder.listFiles((dir, filename) -> filename.equals(currentKey.toString()));
+        File curFile;
+        switch (files.length) {
 
+            case 0:
+                System.out.println("Объект " + currentKey.getKeyForMethod() + " не найден в кэшэ. Добавляем...");
+                Object result = proxy.invokeSuper(obj, args);
+                curFile = new File(rootFolder + File.separator + currentKey);
+                CacheFile cacheFile = new CacheFile(currentKey, result);
+                addCachedFile(curFile, cacheFile);
+                System.out.println("Объект " + currentKey.getKeyForMethod() + " добавлен в кэш");
+                return result;
 
-        return null;
+            case 1:
+                curFile = files[0];
+                CacheFile cachedFile = getCachedFile(curFile);
+                System.out.println("Объект " + currentKey.getKeyForMethod() + " загружен из кэша с результатом " + cachedFile.getResult() );
+                return cachedFile.getResult();
+
+            default:
+                throw new RuntimeException();
+
+        }
     }
 
 
+    private void addCachedFile(File file, CacheFile cacheFile) {
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(file))) {
+            objectOutputStream.writeObject(cacheFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-
-
+    private CacheFile getCachedFile(File file) {
+        CacheFile result = null;
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file))) {
+            result = (CacheFile) objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 
 
 }
