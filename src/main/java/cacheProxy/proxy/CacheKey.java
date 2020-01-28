@@ -1,22 +1,21 @@
 package cacheProxy.proxy;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
 
 public class CacheKey {
 
-    private Method method;
+    private String keyForMethod;
 
     private Object[] args;
 
-    public CacheKey(Method method, Object[] args) {
-        this.method = method;
+    public CacheKey(String keyForMethod, Object[] args) {
+        this.keyForMethod = keyForMethod;
         this.args = args;
     }
 
-    public Method getMethod() {
-        return method;
+    public String getKeyForMethod() {
+        return keyForMethod;
     }
 
     public Object[] getArgs() {
@@ -27,16 +26,15 @@ public class CacheKey {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof CacheKey)) return false;
-        CacheKey key = (CacheKey) o;
-        return getMethod().equals(key.getMethod()) &&
-                Arrays.equals(getArgs(), key.getArgs());
+        CacheKey cacheKey = (CacheKey) o;
+        return getKeyForMethod().equals(cacheKey.getKeyForMethod()) &&
+                Arrays.equals(getArgs(), cacheKey.getArgs());
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(getMethod());
+        int result = Objects.hash(getKeyForMethod());
         result = 31 * result + Arrays.hashCode(getArgs());
         return result;
     }
-
 }

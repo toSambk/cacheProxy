@@ -6,4 +6,6 @@ public interface Service {
 
     int maxNumber(int a, int b);
 
+    int minNumber(int a, int b);
+
 }
