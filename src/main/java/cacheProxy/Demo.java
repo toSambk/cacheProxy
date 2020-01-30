@@ -4,10 +4,14 @@ import cacheProxy.proxy.CacheProxy;
 import cacheProxy.service.Service;
 import cacheProxy.service.ServiceImpl;
 import cacheProxy.service.ServiceImplCommon;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 
 public class Demo {
+
+    public final static Logger log = Logger.getLogger(Demo.class);
 
     public static void main(String[] args) {
 

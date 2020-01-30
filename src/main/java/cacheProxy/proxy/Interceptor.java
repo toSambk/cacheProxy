@@ -1,5 +1,6 @@
 package cacheProxy.proxy;
 
+import cacheProxy.Demo;
 import cacheProxy.annotations.CacheableElement;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -61,11 +62,13 @@ public class Interceptor implements MethodInterceptor {
         if (cacheMap.containsKey(currentKey)) {
             result = cacheMap.get(currentKey);
             System.out.println("Объект " + currentKey.getKeyForMethod() + " загружен из кэша");
+            Demo.log.info("Объект " + currentKey.getKeyForMethod() + " загружен из кэша JVM");
         } else {
             System.out.println("Объект " + currentKey.getKeyForMethod() + " не найден в кэше. Добавляем...");
             result = proxy.invokeSuper(obj, args);
             cacheMap.put(currentKey, result);
             System.out.println("Добавлено - " + currentKey.getKeyForMethod() + " с результатом " + result);
+            Demo.log.warn("Объект " + currentKey.getKeyForMethod() + " был не найден и добавлен в кэш на JVM");
         }
         return result;
     }
@@ -83,12 +86,14 @@ public class Interceptor implements MethodInterceptor {
                 CacheFile cacheFile = new CacheFile(currentKey, result);
                 addCachedFile(curFile, cacheFile);
                 System.out.println("Объект " + currentKey.getKeyForMethod() + " добавлен в кэш");
+                Demo.log.warn("Объект " + currentKey.getKeyForMethod() + " был не найден и добавлен в кэш на диске");
                 return result;
 
             case 1:
                 curFile = files[0];
                 CacheFile cachedFile = getCachedFile(curFile);
                 System.out.println("Объект " + currentKey.getKeyForMethod() + " загружен из кэша с результатом " + cachedFile.getResult() );
+                Demo.log.info("Объект " + currentKey.getKeyForMethod() + " загружен из кэша на диске");
                 return cachedFile.getResult();
 
             default:
