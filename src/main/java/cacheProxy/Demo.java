@@ -4,14 +4,15 @@ import cacheProxy.proxy.CacheProxy;
 import cacheProxy.service.Service;
 import cacheProxy.service.ServiceImpl;
 import cacheProxy.service.ServiceImplCommon;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+
+
 
 import java.io.File;
+import java.util.logging.Logger;
 
 public class Demo {
 
-    public final static Logger log = Logger.getLogger(Demo.class);
+    public final static Logger log = Logger.getLogger(CacheProxy.class.getName());
 
     public static void main(String[] args) {
 
@@ -33,7 +34,6 @@ public class Demo {
         proxyServiceAnother.maxNumber(1, 10);
         proxyServiceAnother.maxNumber(1, 10);
         proxyServiceAnother.doHardWork(1, 10);
-
 
     }
 

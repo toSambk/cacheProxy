@@ -68,7 +68,7 @@ public class Interceptor implements MethodInterceptor {
             result = proxy.invokeSuper(obj, args);
             cacheMap.put(currentKey, result);
             System.out.println("Добавлено - " + currentKey.getKeyForMethod() + " с результатом " + result);
-            Demo.log.warn("Объект " + currentKey.getKeyForMethod() + " был не найден и добавлен в кэш на JVM");
+            Demo.log.warning("Объект " + currentKey.getKeyForMethod() + " был не найден и добавлен в кэш на JVM");
         }
         return result;
     }
@@ -86,7 +86,7 @@ public class Interceptor implements MethodInterceptor {
                 CacheFile cacheFile = new CacheFile(currentKey, result);
                 addCachedFile(curFile, cacheFile);
                 System.out.println("Объект " + currentKey.getKeyForMethod() + " добавлен в кэш");
-                Demo.log.warn("Объект " + currentKey.getKeyForMethod() + " был не найден и добавлен в кэш на диске");
+                Demo.log.warning("Объект " + currentKey.getKeyForMethod() + " был не найден и добавлен в кэш на диске");
                 return result;
 
             case 1:

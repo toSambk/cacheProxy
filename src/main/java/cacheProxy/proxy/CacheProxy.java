@@ -9,7 +9,7 @@ public class CacheProxy {
 
     final private Interceptor interceptor;
 
-    public CacheProxy(final File rootFolder) {
+    public CacheProxy(File rootFolder) {
         if (!rootFolder.isDirectory()) {
             throw new NotADirectoryException();
         }
