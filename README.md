@@ -1,18 +1,59 @@
-Практическое задание: Кеширующий прокси
-Некоторые методы могут выполняться очень долго, хочется иметь возможность кешировать результаты возврата.
-Иногда хочется чтобы результаты расчета могли сохраняться при перезапуске JVM.
-Например, у нас есть интерфейс Service c методом doHardWork().
-Повторный вызов этого метода с теми же параметрами должен возвращать рассчитанный результат из кэша.
+# cacheProxy
 
-Должна быть возможность настройки кеша:
-Указывать с помощью аннотаций, какие методы кешировать.
-Каким образом хранить - в памяти JVM или сериализовывать в файле на диск.
-Возможность указывать название файла/ключа по которому будем храниться значение. Если не задано - использовать имя метода.
-Все настройки кеша должны быть optional и иметь дефолтные настройки.
-Все возможные исключения должны быть обработаны с понятным описание, что делать, чтобы избежать ошибок.Например, при попытке сохранить на диск результат метода, но данный результат не сериализуем, надо кинуть исключение с понятным описанием как это исправить.
-Логика по кешированию должна навешиваться с помощью DynamicProxy. Должен быть класс CacheProxy с методом cache(), который принимает ссылку на сервис и возвращает кеширующую версию этого сервиса.
-CacheProxy должен тоже принимать в конструкторе некоторые настройки, например рутовую папку в которой хранить файлы
+`cacheProxy` is a small Java library that adds result caching to service objects through a dynamic proxy built with `cglib`.
 
-Дизайн аннотаций, атрибутов аннотаций, классов реализаций на вкус.
-Код должен быть читаем, классы не перегружены логикой, классы должны лежать в нужных пакетах.
-Желательно сопроводить код джавадоками (паблик методы, классы).
+## What It Does
+
+The project wraps a service implementation and intercepts method calls. When a method is marked as cacheable, repeated calls with the same arguments return the cached value instead of recalculating the result.
+
+The cache can store values in two ways:
+
+- in JVM memory
+- on disk through Java serialization
+
+## Main Components
+
+- `cacheProxy.proxy.CacheProxy` creates a proxy around a target service
+- `cacheProxy.proxy.Interceptor` applies the caching logic
+- `cacheProxy.annotations.CacheableElement` marks cacheable classes or methods
+- `cacheProxy.annotations.CacheStore` selects the storage mode: `JVM` or `DISK`
+
+## Example Behavior
+
+- method-level caching is demonstrated in `ServiceImpl`
+- class-level caching is demonstrated in `ServiceImplCommon`
+- `Demo` shows how to create a proxy and invoke cached methods
+
+## Build
+
+Compile the project with Maven:
+
+```bash
+mvn clean package
+```
+
+## Run
+
+You can run the demo entry point after building the project:
+
+```bash
+mvn exec:java -Dexec.mainClass=cacheProxy.Demo
+```
+
+Before running the demo, update the root cache directory inside `src/main/java/cacheProxy/Demo.java` so it points to a valid folder on your machine.
+
+## Notes
+
+- disk caching requires cached values to be serializable
+- the proxy implementation uses subclassing via `cglib`
+- the repository currently does not contain automated tests
+
+## Verification
+
+The repository can be checked with:
+
+```bash
+mvn test
+```
+
+At the moment this succeeds as a build verification step and reports that there are no tests to run.
